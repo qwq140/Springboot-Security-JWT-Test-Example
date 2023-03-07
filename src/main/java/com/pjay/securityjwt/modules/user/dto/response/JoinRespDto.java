@@ -3,7 +3,9 @@ package com.pjay.securityjwt.modules.user.dto.response;
 import com.pjay.securityjwt.modules.user.domain.User;
 import lombok.Getter;
 import lombok.Setter;
+import lombok.ToString;
 
+@ToString
 @Getter
 @Setter
 public class JoinRespDto {
