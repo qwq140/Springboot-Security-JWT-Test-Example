@@ -1,6 +1,9 @@
 package com.pjay.securityjwt.config;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.pjay.securityjwt.common.ResponseDto;
 import com.pjay.securityjwt.enum_package.UserRoleType;
+import com.pjay.securityjwt.utils.CustomResponseUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Bean;
@@ -39,6 +42,11 @@ public class SecurityConfig {
         http.formLogin().disable();
         // httpBasic은 브라우저가 팝업창을 이용해서 사용자 인증을 진행한다.
         http.httpBasic().disable();
+
+        // Exception 가로채기
+        http.exceptionHandling().authenticationEntryPoint((request, response, authException) -> {
+            CustomResponseUtil.unAuthentication(response, "로그인을 진행해 주세요");
+        });
 
         http.authorizeRequests()
                 .antMatchers("/api/s/**").authenticated()
