@@ -1,5 +1,6 @@
 package com.pjay.securityjwt.modules.user.service;
 
+import com.pjay.securityjwt.config.dummy.DummyObject;
 import com.pjay.securityjwt.enum_package.UserRoleType;
 import com.pjay.securityjwt.modules.user.domain.User;
 import com.pjay.securityjwt.modules.user.domain.UserRepository;
@@ -22,7 +23,7 @@ import static org.mockito.Mockito.when;
 
 // Spring 관련 Bean들이 하나도 없는 환경
 @ExtendWith(MockitoExtension.class)
-public class UserServiceTest {
+public class UserServiceTest extends DummyObject {
 
     @InjectMocks
     private UserService userService;
@@ -47,16 +48,7 @@ public class UserServiceTest {
 //        when(userRepository.findByUsername(any())).thenReturn(Optional.of(new User()));
 
         // stub 2
-        User user = User.builder()
-                .id(1L)
-                .username("pjay")
-                .password("1234")
-                .email("pjay@gmail.com")
-                .fullname("피제이")
-                .role(UserRoleType.CUSTOMER)
-                .createdAt(LocalDateTime.now())
-                .updatedAt(LocalDateTime.now())
-                .build();
+        User user = newMockUser(1L, "pjay", "피제이");
         when(userRepository.save(any())).thenReturn(user);
 
         // when
