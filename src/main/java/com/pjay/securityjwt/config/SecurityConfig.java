@@ -2,13 +2,18 @@ package com.pjay.securityjwt.config;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.pjay.securityjwt.common.ResponseDto;
+import com.pjay.securityjwt.config.jwt.JwtAuthenticationFilter;
+import com.pjay.securityjwt.config.jwt.JwtAuthorizationFilter;
 import com.pjay.securityjwt.enum_package.UserRoleType;
 import com.pjay.securityjwt.utils.CustomResponseUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpStatus;
+import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
@@ -28,6 +33,16 @@ public class SecurityConfig {
         return new BCryptPasswordEncoder();
     }
 
+    public class CustomSecurityFilterManager extends AbstractHttpConfigurer<CustomSecurityFilterManager, HttpSecurity>{
+        @Override
+        public void configure(HttpSecurity builder) throws Exception {
+            AuthenticationManager authenticationManager = builder.getSharedObject(AuthenticationManager.class);
+            builder.addFilter(new JwtAuthenticationFilter(authenticationManager));
+            builder.addFilter(new JwtAuthorizationFilter(authenticationManager));
+        }
+    }
+
+
     // JWT 서버를 만들 예정 -> Session 사용안함.
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
@@ -43,9 +58,18 @@ public class SecurityConfig {
         // httpBasic은 브라우저가 팝업창을 이용해서 사용자 인증을 진행한다.
         http.httpBasic().disable();
 
-        // Exception 가로채기
+        // 필터 적용
+        http.apply(new CustomSecurityFilterManager());
+
+
+        // 인증실패
         http.exceptionHandling().authenticationEntryPoint((request, response, authException) -> {
-            CustomResponseUtil.unAuthentication(response, "로그인을 진행해 주세요");
+            CustomResponseUtil.fail(response, "로그인을 진행해 주세요", HttpStatus.UNAUTHORIZED);
+        });
+
+        // 권한실패
+        http.exceptionHandling().accessDeniedHandler((request, response, accessDeniedException) -> {
+           CustomResponseUtil.fail(response, "권한이 없습니다", HttpStatus.FORBIDDEN);
         });
 
         http.authorizeRequests()

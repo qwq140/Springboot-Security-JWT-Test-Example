@@ -2,6 +2,7 @@ package com.pjay.securityjwt.handler;
 
 import com.pjay.securityjwt.common.ResponseDto;
 import com.pjay.securityjwt.handler.ex.CustomApiException;
+import com.pjay.securityjwt.handler.ex.CustomForbiddenException;
 import com.pjay.securityjwt.handler.ex.CustomValidationException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -19,6 +20,12 @@ public class CustomExceptionHandler {
     public ResponseEntity<?> apiException(CustomApiException e){
         log.error(e.getMessage());
         return new ResponseEntity<>(new ResponseDto<>(-1, e.getMessage(), null), HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler(CustomForbiddenException.class)
+    public ResponseEntity<?> forbiddenException(CustomForbiddenException e){
+        log.error(e.getMessage());
+        return new ResponseEntity<>(new ResponseDto<>(-1, e.getMessage(), null), HttpStatus.FORBIDDEN);
     }
 
     @ExceptionHandler(CustomValidationException.class)
