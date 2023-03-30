@@ -3,6 +3,8 @@ package com.pjay.securityjwt.modules.account.service;
 import com.pjay.securityjwt.handler.ex.CustomApiException;
 import com.pjay.securityjwt.modules.account.domain.Account;
 import com.pjay.securityjwt.modules.account.domain.AccountRepository;
+import com.pjay.securityjwt.modules.account.dto.request.AccountSaveReqDto;
+import com.pjay.securityjwt.modules.account.dto.response.AccountSaveRespDto;
 import com.pjay.securityjwt.modules.user.domain.User;
 import com.pjay.securityjwt.modules.user.domain.UserRepository;
 import lombok.Getter;
@@ -40,39 +42,5 @@ public class AccountService {
 
         // DTO를 응답
         return new AccountSaveRespDto(accountPS);
-    }
-
-    @Getter
-    @Setter
-    public static class AccountSaveRespDto{
-        private Long id;
-        private Long number;
-        private Long balance;
-
-        public AccountSaveRespDto(Account account) {
-            this.id = account.getId();
-            this.number = account.getNumber();
-            this.balance = account.getBalance();
-        }
-    }
-
-    @Getter
-    @Setter
-    public static class AccountSaveReqDto{
-        @NotNull
-        @Digits(integer = 4, fraction = 4)
-        private Long number;
-        @NotNull
-        @Digits(integer = 4, fraction = 4)
-        private Long password;
-
-        public Account toEntity(User user){
-            return Account.builder()
-                    .number(number)
-                    .password(password)
-                    .balance(1000L)
-                    .user(user)
-                    .build();
-        }
     }
 }
