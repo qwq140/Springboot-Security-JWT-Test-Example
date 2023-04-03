@@ -1,6 +1,7 @@
 package com.pjay.securityjwt.config.dummy;
 
 import com.pjay.securityjwt.enum_package.UserRoleType;
+import com.pjay.securityjwt.modules.account.domain.Account;
 import com.pjay.securityjwt.modules.user.domain.User;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
@@ -31,6 +32,25 @@ public class DummyObject {
                 .role(UserRoleType.CUSTOMER)
                 .createdAt(LocalDateTime.now())
                 .updatedAt(LocalDateTime.now())
+                .build();
+    }
+
+    protected Account newAccount(Long number, User user){
+        return Account.builder()
+                .number(number)
+                .password(1234L)
+                .balance(1000L)
+                .user(user)
+                .build();
+    }
+
+    protected Account newMockAccount(Long id, Long number, User user, Long balance){
+        return Account.builder()
+                .id(id)
+                .number(number)
+                .password(1234L)
+                .balance(balance)
+                .user(user)
                 .build();
     }
 }
