@@ -4,6 +4,7 @@ import com.pjay.securityjwt.handler.ex.CustomApiException;
 import com.pjay.securityjwt.modules.account.domain.Account;
 import com.pjay.securityjwt.modules.account.domain.AccountRepository;
 import com.pjay.securityjwt.modules.account.dto.request.AccountSaveReqDto;
+import com.pjay.securityjwt.modules.account.dto.response.AccountListRespDto;
 import com.pjay.securityjwt.modules.account.dto.response.AccountSaveRespDto;
 import com.pjay.securityjwt.modules.user.domain.User;
 import com.pjay.securityjwt.modules.user.domain.UserRepository;
@@ -15,6 +16,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import javax.validation.constraints.Digits;
 import javax.validation.constraints.NotNull;
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -42,5 +44,14 @@ public class AccountService {
 
         // DTO를 응답
         return new AccountSaveRespDto(accountPS);
+    }
+
+    public AccountListRespDto accountListByUser(Long userId){
+        User userPS = userRepository.findById(userId).orElseThrow(() -> new CustomApiException("유저를 찾을 수 없습니다"));
+
+        // 유저의 모든 계좌목록
+        List<Account> accountListPS = accountRepository.findByUser_Id(userId);
+
+        return new AccountListRespDto(userPS, accountListPS);
     }
 }
