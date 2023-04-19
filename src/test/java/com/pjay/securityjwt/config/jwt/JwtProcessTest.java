@@ -11,14 +11,22 @@ import static org.junit.jupiter.api.Assertions.*;
 
 class JwtProcessTest {
 
-    @Test
-    void create_test() {
+    private String createToken() {
         // given
-        User user = User.builder().id(1L).role(UserRoleType.CUSTOMER).build();
+        User user = User.builder().id(1L).role(UserRoleType.ADMIN).build();
         LoginUser loginUser = new LoginUser(user);
 
         // when
         String jwtToken = JwtProcess.create(loginUser);
+        return jwtToken;
+    }
+
+    @Test
+    void create_test() {
+        // given
+
+        // when
+        String jwtToken = createToken();
         System.out.println("테스트 : "+jwtToken);
 
         // then
@@ -28,13 +36,16 @@ class JwtProcessTest {
     @Test
     void verify_test() {
         // given
-        String token = "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJiYW5rIiwicm9sZSI6IkNVU1RPTUVSIiwiaWQiOjEsImV4cCI6MTY3OTAxNjUwM30.-cV9to2VkPJE7yK5BJ9hsxqE6TH0kXsI4_MAIbOJ6DA7x7qEGal7D2NJKWop0ap-fYbDhhguq4FZnsLkt-7CsQ";
+        String token = createToken();
+        String jwtToken = token.replace(JwtVO.TOKEN_PREFIX, "");
 
         // when
-        LoginUser loginUser = JwtProcess.verify(token);
+        LoginUser loginUser = JwtProcess.verify(jwtToken);
         System.out.println("테스트 : "+loginUser.getUser().getId());
+        System.out.println("테스트 : "+loginUser.getUser().getRole().name());
 
         // then
         assertThat(loginUser.getUser().getId()).isEqualTo(1L);
+        assertThat(loginUser.getUser().getRole()).isEqualTo(UserRoleType.ADMIN);
     }
 }
