@@ -2,6 +2,7 @@ package com.pjay.securityjwt.modules.account.service;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.pjay.securityjwt.config.dummy.DummyObject;
+import com.pjay.securityjwt.handler.ex.CustomApiException;
 import com.pjay.securityjwt.modules.account.domain.Account;
 import com.pjay.securityjwt.modules.account.domain.AccountRepository;
 import com.pjay.securityjwt.modules.account.dto.request.AccountSaveReqDto;
@@ -21,6 +22,7 @@ import java.util.List;
 import java.util.Optional;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
@@ -89,5 +91,24 @@ public class AccountServiceTest extends DummyObject {
         // then
         assertThat(accountListRespDto.getFullname()).isEqualTo("피제이");
         assertThat(accountListRespDto.getAccounts().size()).isEqualTo(3);
+    }
+
+    @Test
+    public void deleteAccountTest() throws Exception {
+        // given
+        Long number = 1111L;
+        Long userId = 2L;
+
+        // stub
+        User user = newMockUser(1L, "pjay", "피제이");
+        Account account = newMockAccount(1L, number, user, 1000L);
+        when(accountRepository.findByNumber(any())).thenReturn(Optional.of(account));
+
+        // deleteById 의 경우 stub으로 정의할 필요가 없다.(리턴이 없어 기대값이 없기 때문에)
+
+        // when
+        assertThrows(CustomApiException.class, () -> accountService.deleteAccount(number, userId));
+
+        // then
     }
 }
