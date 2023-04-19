@@ -1,7 +1,9 @@
 package com.pjay.securityjwt.enum_package;
 
 import lombok.AllArgsConstructor;
+import lombok.Getter;
 
+@Getter
 @AllArgsConstructor
 public enum TransactionType {
     WITHDRAW("출금"),

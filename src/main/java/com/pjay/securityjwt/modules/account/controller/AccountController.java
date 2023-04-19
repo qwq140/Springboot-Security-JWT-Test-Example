@@ -2,7 +2,9 @@ package com.pjay.securityjwt.modules.account.controller;
 
 import com.pjay.securityjwt.common.ResponseDto;
 import com.pjay.securityjwt.config.auth.LoginUser;
+import com.pjay.securityjwt.modules.account.dto.request.AccountDepositReqDto;
 import com.pjay.securityjwt.modules.account.dto.request.AccountSaveReqDto;
+import com.pjay.securityjwt.modules.account.dto.response.AccountDepositRespDto;
 import com.pjay.securityjwt.modules.account.dto.response.AccountListRespDto;
 import com.pjay.securityjwt.modules.account.dto.response.AccountSaveRespDto;
 import com.pjay.securityjwt.modules.account.service.AccountService;
@@ -39,6 +41,12 @@ public class AccountController {
     @DeleteMapping("/s/account/{number}")
     public ResponseEntity<?> deleteAccount(@PathVariable Long number, @AuthenticationPrincipal LoginUser loginUser){
         accountService.deleteAccount(number, loginUser.getUser().getId());
-        return new ResponseEntity<>(new ResponseDto<>(1, "계좌삭제완려", null), HttpStatus.OK);
+        return new ResponseEntity<>(new ResponseDto<>(1, "계좌 삭제 완료", null), HttpStatus.OK);
+    }
+
+    @PostMapping("/account/deposit")
+    public ResponseEntity<?> depositAccount(@RequestBody @Valid AccountDepositReqDto accountDepositReqDto, BindingResult bindingResult){
+        AccountDepositRespDto accountDepositRespDto = accountService.deposit(accountDepositReqDto);
+        return new ResponseEntity<>(new ResponseDto<>(1, "계좌 입금 완료", accountDepositRespDto), HttpStatus.CREATED);
     }
 }
