@@ -73,4 +73,31 @@ public class RegexTest {
         boolean result = Pattern.matches("^[a-zA-Z가-힣]{1,20}$",value); // ^ : 시작, & : 끝, + : 1번 이상의 발생
         System.out.println("테스트 : "+result);
     }
+
+    @Test
+    public void account_gubun_test1(){
+        String value = "DEPOSIT";
+        boolean result = Pattern.matches("^(DEPOSIT)$",value); // 정확한 문자를 하려면 ()를 하면 된다.
+        System.out.println("테스트 : "+result);
+    }
+    @Test
+    public void account_gubun_test2(){
+        String value = "TRANSFER";
+        boolean result = Pattern.matches("^(DEPOSIT|TRANSFER)$",value); // 정확한 문자를 하려면 ()를 하면 된다.
+        System.out.println("테스트 : "+result);
+    }
+
+    @Test
+    public void account_tel_test1(){
+        String value = "010-1111-2222";
+        boolean result = Pattern.matches("^[0-9]{3}-[0-9]{4}-[0-9]{4}",value);
+        System.out.println("테스트 : "+result);
+    }
+
+    @Test
+    public void account_tel_test2(){
+        String value = "01011112222";
+        boolean result = Pattern.matches("^[0-9]{11}",value);
+        System.out.println("테스트 : "+result);
+    }
 }
