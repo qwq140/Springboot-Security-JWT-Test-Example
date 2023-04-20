@@ -2,9 +2,11 @@ package com.pjay.securityjwt.modules.account.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.pjay.securityjwt.config.dummy.DummyObject;
+import com.pjay.securityjwt.enum_package.TransactionType;
 import com.pjay.securityjwt.handler.ex.CustomApiException;
 import com.pjay.securityjwt.modules.account.domain.Account;
 import com.pjay.securityjwt.modules.account.domain.AccountRepository;
+import com.pjay.securityjwt.modules.account.dto.request.AccountDepositReqDto;
 import com.pjay.securityjwt.modules.account.dto.request.AccountSaveReqDto;
 import com.pjay.securityjwt.modules.account.dto.response.AccountListRespDto;
 import com.pjay.securityjwt.modules.user.domain.User;
@@ -120,5 +122,25 @@ public class AccountControllerTest extends DummyObject {
         // then
         // Junit 테스트에서 delete 쿼리는 DB관련(DML)으로 가장 마지막에 실행되면 발동안됨.
         assertThrows(CustomApiException.class, () -> accountRepository.findByNumber(number).orElseThrow(() -> new CustomApiException("계좌를 찾을 수 없습니다")));
+    }
+
+    @Test
+    public void depositAccount_test() throws Exception {
+        // given
+        AccountDepositReqDto accountDepositReqDto = new AccountDepositReqDto();
+        accountDepositReqDto.setNumber(1111L);
+        accountDepositReqDto.setAmount(100L);
+        accountDepositReqDto.setGubun(TransactionType.DEPOSIT.name());
+        accountDepositReqDto.setTel("01011112222");
+        String requestBody = om.writeValueAsString(accountDepositReqDto);
+        System.out.println("테스트 : "+requestBody);
+
+        // when
+        ResultActions resultActions = mvc.perform(post("/api/account/deposit").content(requestBody).contentType(MediaType.APPLICATION_JSON));
+        String responseBody = resultActions.andReturn().getResponse().getContentAsString();
+        System.out.println("테스트 : "+responseBody);
+
+        // then
+        resultActions.andExpect(status().isCreated());
     }
 }
