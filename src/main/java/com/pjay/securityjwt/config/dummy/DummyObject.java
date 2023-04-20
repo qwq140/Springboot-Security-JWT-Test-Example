@@ -1,7 +1,9 @@
 package com.pjay.securityjwt.config.dummy;
 
+import com.pjay.securityjwt.enum_package.TransactionType;
 import com.pjay.securityjwt.enum_package.UserRoleType;
 import com.pjay.securityjwt.modules.account.domain.Account;
+import com.pjay.securityjwt.modules.transaction.domain.Transaction;
 import com.pjay.securityjwt.modules.user.domain.User;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
@@ -51,6 +53,24 @@ public class DummyObject {
                 .password(1234L)
                 .balance(balance)
                 .user(user)
+                .build();
+    }
+
+    protected Transaction newMockDepositTransaction(Long id, Account account){
+        account.deposit(100L);
+        return Transaction.builder()
+                .id(id)
+                .depositAccount(account)
+                .withdrawAccount(null)
+                .depositAccountBalance(account.getBalance())
+                .withdrawAccountBalance(null)
+                .amount(100L)
+                .gubun(TransactionType.DEPOSIT)
+                .sender("ATM")
+                .receiver(account.getNumber()+"")
+                .tel("01011112222")
+                .createdAt(LocalDateTime.now())
+                .updatedAt(LocalDateTime.now())
                 .build();
     }
 }

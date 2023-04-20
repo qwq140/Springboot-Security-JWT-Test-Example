@@ -2,12 +2,17 @@ package com.pjay.securityjwt.modules.account.service;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.pjay.securityjwt.config.dummy.DummyObject;
+import com.pjay.securityjwt.enum_package.TransactionType;
 import com.pjay.securityjwt.handler.ex.CustomApiException;
 import com.pjay.securityjwt.modules.account.domain.Account;
 import com.pjay.securityjwt.modules.account.domain.AccountRepository;
+import com.pjay.securityjwt.modules.account.dto.request.AccountDepositReqDto;
 import com.pjay.securityjwt.modules.account.dto.request.AccountSaveReqDto;
+import com.pjay.securityjwt.modules.account.dto.response.AccountDepositRespDto;
 import com.pjay.securityjwt.modules.account.dto.response.AccountListRespDto;
 import com.pjay.securityjwt.modules.account.dto.response.AccountSaveRespDto;
+import com.pjay.securityjwt.modules.transaction.domain.Transaction;
+import com.pjay.securityjwt.modules.transaction.domain.TransactionRepository;
 import com.pjay.securityjwt.modules.user.domain.User;
 import com.pjay.securityjwt.modules.user.domain.UserRepository;
 import org.junit.jupiter.api.Test;
@@ -37,6 +42,9 @@ public class AccountServiceTest extends DummyObject {
 
     @Mock
     private AccountRepository accountRepository;
+
+    @Mock
+    private TransactionRepository transactionRepository;
 
     @Spy // 진짜 객체를 InjectMocks에 주입한다.
     private ObjectMapper om;
@@ -110,5 +118,37 @@ public class AccountServiceTest extends DummyObject {
         assertThrows(CustomApiException.class, () -> accountService.deleteAccount(number, userId));
 
         // then
+    }
+
+    // 스텁마다 mock 을 새로만들기
+    @Test
+    public void depositTest() throws Exception {
+        // given
+        AccountDepositReqDto accountDepositReqDto = new AccountDepositReqDto();
+        accountDepositReqDto.setNumber(1111L);
+        accountDepositReqDto.setAmount(100L);
+        accountDepositReqDto.setGubun(TransactionType.DEPOSIT.name());
+        accountDepositReqDto.setTel("01011112222");
+
+
+        // stub 1
+        User user = newMockUser(1L, "pjay", "피제이");
+        Account account1 = newMockAccount(1L, 1111L, user, 1000L); // account1 -> 1000원
+        when(accountRepository.findByNumber(any())).thenReturn(Optional.of(account1)); // 실행안됨
+
+
+        // stub 2 (스텁이 진행될 때 마다 연관된 객체는 새로 만들어서 주입하기 - 타이밍 때문에 꼬인다)
+        Account account2 = newMockAccount(1L, 1111L, user, 1000L);
+        Transaction transaction = newMockDepositTransaction(1L, account2); // account1 -> 1100원, transaction -> 1100원
+        when(transactionRepository.save(any())).thenReturn(transaction); // 실행안됨
+
+        // when
+        AccountDepositRespDto accountDepositRespDto = accountService.deposit(accountDepositReqDto); // 여기서 when 이 실행됨
+        System.out.println(accountDepositRespDto.getTransaction().getDepositAccountBalance());
+        System.out.println(account1.getBalance());
+
+        // then
+        assertThat(account1.getBalance()).isEqualTo(1100L);
+        assertThat(accountDepositRespDto.getTransaction().getDepositAccountBalance()).isEqualTo(1100L);
     }
 }
