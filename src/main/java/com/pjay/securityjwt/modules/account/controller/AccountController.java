@@ -4,11 +4,9 @@ import com.pjay.securityjwt.common.ResponseDto;
 import com.pjay.securityjwt.config.auth.LoginUser;
 import com.pjay.securityjwt.modules.account.dto.request.AccountDepositReqDto;
 import com.pjay.securityjwt.modules.account.dto.request.AccountSaveReqDto;
+import com.pjay.securityjwt.modules.account.dto.request.AccountTransferReqDto;
 import com.pjay.securityjwt.modules.account.dto.request.AccountWithdrawReqDto;
-import com.pjay.securityjwt.modules.account.dto.response.AccountDepositRespDto;
-import com.pjay.securityjwt.modules.account.dto.response.AccountListRespDto;
-import com.pjay.securityjwt.modules.account.dto.response.AccountSaveRespDto;
-import com.pjay.securityjwt.modules.account.dto.response.AccountWithdrawRespDto;
+import com.pjay.securityjwt.modules.account.dto.response.*;
 import com.pjay.securityjwt.modules.account.service.AccountService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -56,5 +54,11 @@ public class AccountController {
     public ResponseEntity<?> withdrawAccount(@RequestBody @Valid AccountWithdrawReqDto accountWithdrawReqDto, BindingResult bindingResult, @AuthenticationPrincipal LoginUser loginUser){
         AccountWithdrawRespDto accountWithdrawRespDto = accountService.withdraw(accountWithdrawReqDto, loginUser.getUser().getId());
         return new ResponseEntity<>(new ResponseDto<>(1, "계좌 춢급 완료", accountWithdrawRespDto), HttpStatus.CREATED);
+    }
+
+    @PostMapping("/account/transfer")
+    public ResponseEntity<?> transferAccount(@RequestBody @Valid AccountTransferReqDto accountTransferReqDto, BindingResult bindingResult, @AuthenticationPrincipal LoginUser loginUser){
+        AccountTransferRespDto accountTransferRespDto = accountService.transfer(accountTransferReqDto, loginUser.getUser().getId());
+        return new ResponseEntity<>(new ResponseDto<>(1, "계좌 이체 완료", accountTransferRespDto), HttpStatus.CREATED);
     }
 }
