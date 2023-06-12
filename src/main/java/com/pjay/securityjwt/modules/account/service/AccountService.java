@@ -6,11 +6,9 @@ import com.pjay.securityjwt.modules.account.domain.Account;
 import com.pjay.securityjwt.modules.account.domain.AccountRepository;
 import com.pjay.securityjwt.modules.account.dto.request.AccountDepositReqDto;
 import com.pjay.securityjwt.modules.account.dto.request.AccountSaveReqDto;
+import com.pjay.securityjwt.modules.account.dto.request.AccountTransferReqDto;
 import com.pjay.securityjwt.modules.account.dto.request.AccountWithdrawReqDto;
-import com.pjay.securityjwt.modules.account.dto.response.AccountDepositRespDto;
-import com.pjay.securityjwt.modules.account.dto.response.AccountListRespDto;
-import com.pjay.securityjwt.modules.account.dto.response.AccountSaveRespDto;
-import com.pjay.securityjwt.modules.account.dto.response.AccountWithdrawRespDto;
+import com.pjay.securityjwt.modules.account.dto.response.*;
 import com.pjay.securityjwt.modules.transaction.domain.Transaction;
 import com.pjay.securityjwt.modules.transaction.domain.TransactionRepository;
 import com.pjay.securityjwt.modules.user.domain.User;
@@ -135,5 +133,48 @@ public class AccountService {
 
         // DTO 응답
         return new AccountWithdrawRespDto(withdrawAccountPS, transactionPS);
+    }
+
+    @Transactional
+    public AccountTransferRespDto transfer(AccountTransferReqDto accountTransferReqDto, Long userId){
+        // 출금계좌와 입금계좌가 동일하면 안됨
+        if(accountTransferReqDto.getWithdrawNumber().longValue() == accountTransferReqDto.getDepositNumber().longValue()){
+            throw new CustomApiException("입출금계좌가 동일할 수 없습니다");
+        }
+
+        // 0원 체크
+        if(accountTransferReqDto.getAmount() <= 0L){
+            throw new CustomApiException("0원 이하의 금액을 입력할 수 없습니다");
+        }
+        // 출금계좌가 있는지 확인
+        Account withdrawAccountPS = accountRepository.findByNumber(accountTransferReqDto.getWithdrawNumber()).orElseThrow(() -> new CustomApiException("출금계좌를 찾을 수 없습니다"));
+        // 입금계좌가 있는지 확인
+        Account depositAccountPS = accountRepository.findByNumber(accountTransferReqDto.getDepositNumber()).orElseThrow(() -> new CustomApiException("입금계좌를 찾을 수 없습니다"));
+        // 출금 소유자 확인 (로그인한 사람과 동일한지)
+        withdrawAccountPS.checkOwner(userId);
+        // 출금계좌 비밀번호 확인
+        withdrawAccountPS.checkSamePassword(accountTransferReqDto.getWithdrawPassword());
+        // 출금계좌 잔액 확인
+        withdrawAccountPS.checkBalance(accountTransferReqDto.getAmount());
+        // 이체하기
+        withdrawAccountPS.withdraw(accountTransferReqDto.getAmount());
+        depositAccountPS.deposit(accountTransferReqDto.getAmount());
+
+        // 거래내역 남기기(계좌에서 계좌로)
+        Transaction transaction = Transaction.builder()
+                .depositAccount(depositAccountPS)
+                .withdrawAccount(withdrawAccountPS)
+                .depositAccountBalance(depositAccountPS.getBalance())
+                .withdrawAccountBalance(withdrawAccountPS.getBalance())
+                .amount(accountTransferReqDto.getAmount())
+                .gubun(TransactionType.TRANSFER)
+                .sender(withdrawAccountPS.getNumber()+"")
+                .receiver(depositAccountPS.getNumber()+"")
+                .build();
+
+        Transaction transactionPS = transactionRepository.save(transaction);
+
+        // DTO 응답
+        return new AccountTransferRespDto(withdrawAccountPS, transactionPS);
     }
 }
