@@ -3,21 +3,23 @@ package com.pjay.securityjwt.modules.account.dto.response;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.pjay.securityjwt.modules.account.domain.Account;
 import com.pjay.securityjwt.modules.transaction.domain.Transaction;
-import com.pjay.securityjwt.modules.transaction.dto.response.TransactionDto;
 import com.pjay.securityjwt.utils.CustomDateUtil;
 import lombok.Getter;
 import lombok.Setter;
 
+// DTO가 똑같아도 재사용하지 않기 (나중에 만ㅇ약에 출금할때 조금 DTO 달라져야 하면 DTO를 공유하면 수정잘못하면 망함 - 독립적으로 만들기)
 @Getter
 @Setter
-public class AccountDepositRespDto {
+public class AccountWithdrawRespDto {
     private Long id;
     private Long number;
+    private Long balance;
     private TransactionDto transaction;
 
-    public AccountDepositRespDto(Account account, Transaction transaction) {
+    public AccountWithdrawRespDto(Account account, Transaction transaction) {
         this.id = account.getId();
         this.number = account.getNumber();
+        this.balance = account.getBalance();
         this.transaction = new TransactionDto(transaction);
     }
 
@@ -29,9 +31,6 @@ public class AccountDepositRespDto {
         private String sender; // ATM
         private String receiver;
         private Long amount;
-        @JsonIgnore
-        private Long depositAccountBalance; // 클라이언트에게 전달x -> 서비스단에서 테스트 용도
-        private String tel;
         private String createdAt;
 
         public TransactionDto(Transaction transaction) {
@@ -40,8 +39,6 @@ public class AccountDepositRespDto {
             this.sender = transaction.getSender();
             this.receiver = transaction.getReceiver();
             this.amount = transaction.getAmount();
-            this.depositAccountBalance = transaction.getDepositAccountBalance();
-            this.tel = transaction.getTel();
             this.createdAt = CustomDateUtil.toStringFormat(transaction.getCreatedAt());
         }
     }
