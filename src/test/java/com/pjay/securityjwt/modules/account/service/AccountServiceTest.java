@@ -123,6 +123,7 @@ public class AccountServiceTest extends DummyObject {
     }
 
     // 스텁마다 mock 을 새로만들기
+    // 완벽한 테스트는 존재할 수 없다. 꼼꼼하게 값을 테스트해봐야 한다.
     @Test
     public void depositTest() throws Exception {
         // given

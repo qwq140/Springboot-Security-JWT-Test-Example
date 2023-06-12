@@ -59,3 +59,34 @@ public class JoinReqDto{
 ```
 유효성 검사할 dto 앞에 @Valid를 추가하고 바로 뒤에 BindingResult를 쓰면 BindingResult에 error가 담긴다.
 
+### Long Test
+- 2^8 (-126 ~ 127) 범위에서는 == 으로 비교가 된다.
+- 그 밖의 범위에서는 비교가 안된다. 그래서 isEquals나 longValue를 이용하여 비교하여야 한다.
+```java
+    @Test
+    public void long_test2() throws Exception {
+        // given
+        Long v1 = 128L;
+        Long v2 = 128L;
+
+        // when
+        if(v1 < v2){
+            System.out.println("테스트 : v1이 작습니다");
+        } else if(v1 == v2){
+            System.out.println("테스트 : 같습니다");
+        } else if(v1 > v2){
+            System.out.println("테스트 : v1이 큽니다");
+        } else if(v1.longValue() == v2.longValue()){
+            System.out.println("테스트 : longValue()를 이용하여 비교 v1과 v2는 같습니다");
+        }
+    }
+
+    @Test
+    public void long_test3() throws  Exception {
+        // given
+        Long v1 = 128L;
+        Long v2 = 128L;
+
+        assertThat(v1).isEqualTo(v2);
+    }
+```
