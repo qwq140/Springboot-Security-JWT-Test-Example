@@ -8,6 +8,7 @@ import com.pjay.securityjwt.modules.account.domain.Account;
 import com.pjay.securityjwt.modules.account.domain.AccountRepository;
 import com.pjay.securityjwt.modules.account.dto.request.AccountDepositReqDto;
 import com.pjay.securityjwt.modules.account.dto.request.AccountSaveReqDto;
+import com.pjay.securityjwt.modules.account.dto.request.AccountTransferReqDto;
 import com.pjay.securityjwt.modules.account.dto.request.AccountWithdrawReqDto;
 import com.pjay.securityjwt.modules.account.dto.response.AccountListRespDto;
 import com.pjay.securityjwt.modules.user.domain.User;
@@ -160,6 +161,29 @@ public class AccountControllerTest extends DummyObject {
 
         // when
         ResultActions resultActions = mvc.perform(post("/api/account/withdraw").content(requestBody).contentType(MediaType.APPLICATION_JSON));
+        String responseBody = resultActions.andReturn().getResponse().getContentAsString();
+        System.out.println("테스트 : "+responseBody);
+
+        // then
+        resultActions.andExpect(status().isCreated());
+    }
+
+    @WithUserDetails(value = "pjay", setupBefore = TestExecutionEvent.TEST_EXECUTION)
+    @Test
+    public void transferAccount_test() throws  Exception {
+        // given
+        AccountTransferReqDto accountTransferReqDto = new AccountTransferReqDto();
+        accountTransferReqDto.setWithdrawNumber(1111L);
+        accountTransferReqDto.setDepositNumber(2222L);
+        accountTransferReqDto.setWithdrawPassword(1234L);
+        accountTransferReqDto.setAmount(100L);
+        accountTransferReqDto.setGubun("TRANSFER");
+
+        String requestBody = om.writeValueAsString(accountTransferReqDto);
+        System.out.println("테스트 : "+requestBody);
+
+        // when
+        ResultActions resultActions = mvc.perform(post("/api/account/transfer").content(requestBody).contentType(MediaType.APPLICATION_JSON));
         String responseBody = resultActions.andReturn().getResponse().getContentAsString();
         System.out.println("테스트 : "+responseBody);
 
