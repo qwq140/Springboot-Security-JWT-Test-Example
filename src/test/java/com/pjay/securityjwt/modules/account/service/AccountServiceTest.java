@@ -8,6 +8,7 @@ import com.pjay.securityjwt.modules.account.domain.Account;
 import com.pjay.securityjwt.modules.account.domain.AccountRepository;
 import com.pjay.securityjwt.modules.account.dto.request.AccountDepositReqDto;
 import com.pjay.securityjwt.modules.account.dto.request.AccountSaveReqDto;
+import com.pjay.securityjwt.modules.account.dto.request.AccountWithdrawReqDto;
 import com.pjay.securityjwt.modules.account.dto.response.AccountDepositRespDto;
 import com.pjay.securityjwt.modules.account.dto.response.AccountListRespDto;
 import com.pjay.securityjwt.modules.account.dto.response.AccountSaveRespDto;
@@ -175,5 +176,36 @@ public class AccountServiceTest extends DummyObject {
 
         // then
         assertThat(account.getBalance()).isEqualTo(1100L);
+    }
+
+    // 계좌 출금 테스트
+    @Test
+    public void 계좌출금_test() throws Exception {
+        // given
+        Long amount = 100L;
+        Long password = 1234L;
+        Long userId = 1L;
+
+        User pjay = newMockUser(1L, "pjay", "피제이");
+        Account pjayAccount = newMockAccount(1L, 1111L, pjay, 1000L);
+
+        // when
+        // 0원 체크
+        if(amount <= 0L){
+            throw new CustomApiException("0원 이하의 금액을 출금할 수 없습니다");
+        }
+        // 출금 소유자 확인
+        pjayAccount.checkOwner(userId);
+        // 비밀번호 확인
+        pjayAccount.checkSamePassword(password);
+        // 잔액확인
+        pjayAccount.checkBalance(amount);
+        // 출급하기
+        pjayAccount.withdraw(amount);
+
+        System.out.println(pjayAccount.getBalance());
+        // then
+        assertThat(pjayAccount.getBalance()).isEqualTo(900L);
+
     }
 }

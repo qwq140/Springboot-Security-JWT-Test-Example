@@ -78,6 +78,7 @@ public class Account {
     }
 
     public void withdraw(Long amount) {
-        balance = balance - balance;
+        checkBalance(amount);
+        balance = balance - amount;
     }
 }
