@@ -77,7 +77,8 @@ public class DummyObject {
 
     protected Transaction newDepositTransaction(Account account, AccountRepository accountRepository){
         account.deposit(100L); // 1000원이 있었다면 1100원이 됨
-        // 더티채킹이 안되기 때문에
+        // Repository Test에서는 더티체킹이 된다.
+        // Controller Test에서는 더티체킹 안된다.
         if(accountRepository != null){
             accountRepository.save(account);
         }

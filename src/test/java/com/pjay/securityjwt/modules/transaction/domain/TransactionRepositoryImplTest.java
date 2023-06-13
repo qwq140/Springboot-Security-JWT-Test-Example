@@ -1,6 +1,7 @@
 package com.pjay.securityjwt.modules.transaction.domain;
 
 import com.pjay.securityjwt.config.dummy.DummyObject;
+import com.pjay.securityjwt.enum_package.TransactionType;
 import com.pjay.securityjwt.modules.account.domain.Account;
 import com.pjay.securityjwt.modules.account.domain.AccountRepository;
 import com.pjay.securityjwt.modules.user.domain.User;
@@ -36,6 +37,25 @@ public class TransactionRepositoryImplTest extends DummyObject {
         autoincrementReset();
         dataSetting();
     }
+
+    @Test
+    public void findTransactionList_all_test(){
+        //given
+        Long accountId = 1L;
+
+        //when
+        List<Transaction> transactionListPS = transactionRepository.findTransactionList(accountId, "ALL", 0);
+        transactionListPS.forEach(transaction -> {
+            System.out.println("테스트 : id : "+transaction.getId());
+            System.out.println("테스트 : amount : "+transaction.getAmount());
+            System.out.println("테스트 : receiver : "+transaction.getReceiver());
+            System.out.println("테스트 : sender : "+transaction.getSender());
+            System.out.println("테스트 : depositAccount 잔액 : "+transaction.getDepositAccountBalance());
+            System.out.println("테스트 : withdrawAccount 잔액 "+transaction.getWithdrawAccountBalance());
+            System.out.println("테스트 : ==================================");
+        });
+    }
+
 
     @Test
     public void dataJpa_test1(){
