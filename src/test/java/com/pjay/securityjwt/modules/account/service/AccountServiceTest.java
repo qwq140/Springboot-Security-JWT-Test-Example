@@ -9,7 +9,6 @@ import com.pjay.securityjwt.modules.account.domain.AccountRepository;
 import com.pjay.securityjwt.modules.account.dto.request.AccountDepositReqDto;
 import com.pjay.securityjwt.modules.account.dto.request.AccountSaveReqDto;
 import com.pjay.securityjwt.modules.account.dto.request.AccountTransferReqDto;
-import com.pjay.securityjwt.modules.account.dto.request.AccountWithdrawReqDto;
 import com.pjay.securityjwt.modules.account.dto.response.AccountDepositRespDto;
 import com.pjay.securityjwt.modules.account.dto.response.AccountListRespDto;
 import com.pjay.securityjwt.modules.account.dto.response.AccountSaveRespDto;
