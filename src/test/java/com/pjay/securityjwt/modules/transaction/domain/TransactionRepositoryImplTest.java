@@ -6,6 +6,7 @@ import com.pjay.securityjwt.modules.account.domain.Account;
 import com.pjay.securityjwt.modules.account.domain.AccountRepository;
 import com.pjay.securityjwt.modules.user.domain.User;
 import com.pjay.securityjwt.modules.user.domain.UserRepository;
+import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,6 +16,8 @@ import org.springframework.test.context.jdbc.Sql;
 
 import javax.persistence.EntityManager;
 import java.util.List;
+
+import static org.assertj.core.api.Assertions.*;
 
 @ActiveProfiles("test")
 @DataJpaTest // DB 관련된 Bean이 다 올라온다.
@@ -36,6 +39,7 @@ public class TransactionRepositoryImplTest extends DummyObject {
     public void setUp(){
         autoincrementReset();
         dataSetting();
+        em.clear();
     }
 
     @Test
@@ -51,9 +55,14 @@ public class TransactionRepositoryImplTest extends DummyObject {
             System.out.println("테스트 : receiver : "+transaction.getReceiver());
             System.out.println("테스트 : sender : "+transaction.getSender());
             System.out.println("테스트 : depositAccount 잔액 : "+transaction.getDepositAccountBalance());
-            System.out.println("테스트 : withdrawAccount 잔액 "+transaction.getWithdrawAccountBalance());
+            System.out.println("테스트 : withdrawAccount 잔액 : "+transaction.getWithdrawAccountBalance());
+            System.out.println("테스트 : 잔액 : "+transaction.getWithdrawAccount().getBalance());
+            System.out.println("테스트 : fullname : "+transaction.getWithdrawAccount().getUser().getFullname());
             System.out.println("테스트 : ==================================");
         });
+
+        // then
+        assertThat(transactionListPS.get(3).getDepositAccountBalance()).isEqualTo(800L);
     }
 
 

@@ -18,6 +18,9 @@ public class TransactionRepositoryImpl implements Dao{
 
     private final EntityManager em;
 
+    // fetch join : JPQL에서 성능 최적하를 위해 제공하는 기능
+    // 연관된 엔티티나 컬렉션을 sql 한번에 함께 조회하는 기능이다.
+    // fetch를 안붙이면 프로젝션을 안함(select 절에 포함을 안시킨다)
     @Override
     public List<Transaction> findTransactionList(Long accountId, String gubun, Integer page) {
         // JPQL
