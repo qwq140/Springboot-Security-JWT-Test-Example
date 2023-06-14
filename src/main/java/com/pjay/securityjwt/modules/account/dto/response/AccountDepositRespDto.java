@@ -3,7 +3,6 @@ package com.pjay.securityjwt.modules.account.dto.response;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.pjay.securityjwt.modules.account.domain.Account;
 import com.pjay.securityjwt.modules.transaction.domain.Transaction;
-import com.pjay.securityjwt.modules.transaction.dto.response.TransactionDto;
 import com.pjay.securityjwt.utils.CustomDateUtil;
 import lombok.Getter;
 import lombok.Setter;
