@@ -11,6 +11,8 @@ import com.pjay.securityjwt.modules.account.dto.request.AccountSaveReqDto;
 import com.pjay.securityjwt.modules.account.dto.request.AccountTransferReqDto;
 import com.pjay.securityjwt.modules.account.dto.request.AccountWithdrawReqDto;
 import com.pjay.securityjwt.modules.account.dto.response.AccountListRespDto;
+import com.pjay.securityjwt.modules.transaction.domain.Transaction;
+import com.pjay.securityjwt.modules.transaction.domain.TransactionRepository;
 import com.pjay.securityjwt.modules.user.domain.User;
 import com.pjay.securityjwt.modules.user.domain.UserRepository;
 import org.junit.jupiter.api.BeforeEach;
@@ -33,6 +35,7 @@ import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 
@@ -55,22 +58,21 @@ public class AccountControllerTest extends DummyObject {
     private AccountRepository accountRepository;
 
     @Autowired
+    private TransactionRepository transactionRepository;
+
+    @Autowired
     private EntityManager em;
 
     @BeforeEach
     public void setUp(){
-        User pjay = userRepository.save(newUser("pjay", "피제이"));
-        User test = userRepository.save(newUser("test", "테스트"));
-        accountRepository.save(newAccount(1111L, pjay));
-        accountRepository.save(newAccount(2222L, pjay));
-        accountRepository.save(newAccount(3333L, test));
+        dataSetting();
         em.clear();
     }
 
     // jwt token -> 인증필터 -> 시큐리티 세션생성
     // setupBefore=TEST_METHOD (setUp 메서드 실행전에 수행)
     // setupBefore = TEST_EXECUTION (saveAccount_test 메서드 실행전에 수행)
-    @WithUserDetails(value = "pjay", setupBefore = TestExecutionEvent.TEST_EXECUTION) // 디비에서 username = pjay 조회를 해서 세션에 담아주는 어노테이션
+    @WithUserDetails(value = "ssar", setupBefore = TestExecutionEvent.TEST_EXECUTION) // 디비에서 username = ssar 조회를 해서 세션에 담아주는 어노테이션
     @Test
     public void saveAccount_test() throws Exception {
         // given
@@ -89,7 +91,7 @@ public class AccountControllerTest extends DummyObject {
         resultActions.andExpect(status().isCreated());
     }
 
-    @WithUserDetails(value = "pjay", setupBefore = TestExecutionEvent.TEST_EXECUTION) // 디비에서 username = pjay 조회를 해서 세션에 담아주는 어노테이션
+    @WithUserDetails(value = "ssar", setupBefore = TestExecutionEvent.TEST_EXECUTION) // 디비에서 username = pjay 조회를 해서 세션에 담아주는 어노테이션
     @Test
     public void findByUserAccount_test() throws Exception {
         // given
@@ -110,7 +112,7 @@ public class AccountControllerTest extends DummyObject {
      * Lazy 로딩은 쿼리도 발생안함 - PC에 있다면
      * Lazy 로딩을 할 때 PC에 없다면 쿼리가 발생한다.
      */
-    @WithUserDetails(value = "pjay", setupBefore = TestExecutionEvent.TEST_EXECUTION)
+    @WithUserDetails(value = "ssar", setupBefore = TestExecutionEvent.TEST_EXECUTION)
     @Test
     public void deleteAccount_test() throws Exception {
         // given
@@ -146,7 +148,7 @@ public class AccountControllerTest extends DummyObject {
         resultActions.andExpect(status().isCreated());
     }
 
-    @WithUserDetails(value = "pjay", setupBefore = TestExecutionEvent.TEST_EXECUTION)
+    @WithUserDetails(value = "ssar", setupBefore = TestExecutionEvent.TEST_EXECUTION)
     @Test
     public void withdrawAccount_test() throws  Exception {
         // given
@@ -168,7 +170,7 @@ public class AccountControllerTest extends DummyObject {
         resultActions.andExpect(status().isCreated());
     }
 
-    @WithUserDetails(value = "pjay", setupBefore = TestExecutionEvent.TEST_EXECUTION)
+    @WithUserDetails(value = "ssar", setupBefore = TestExecutionEvent.TEST_EXECUTION)
     @Test
     public void transferAccount_test() throws  Exception {
         // given
@@ -189,5 +191,48 @@ public class AccountControllerTest extends DummyObject {
 
         // then
         resultActions.andExpect(status().isCreated());
+    }
+
+    @WithUserDetails(value = "ssar", setupBefore = TestExecutionEvent.TEST_EXECUTION)
+    @Test
+    public void findDetailAccount_test() throws Exception {
+        // given
+        Long number = 1111L;
+        String page = "0";
+
+        // when
+        ResultActions resultActions = mvc.perform(get("/api/s/account/"+number).param("page", page));
+        String responseBody = resultActions.andReturn().getResponse().getContentAsString();
+        System.out.println("테스트 : "+responseBody);
+
+        // then
+        resultActions.andExpect(status().isOk());
+        resultActions.andExpect(jsonPath("$.data.transactions[0].balance").value(900L));
+        resultActions.andExpect(jsonPath("$.data.transactions[1].balance").value(800L));
+        resultActions.andExpect(jsonPath("$.data.transactions[2].balance").value(700L));
+        resultActions.andExpect(jsonPath("$.data.transactions[3].balance").value(800L));
+    }
+
+    private void dataSetting(){
+        User ssar = userRepository.save(newUser("ssar", "쌀"));
+        User cos = userRepository.save(newUser("cos", "코스,"));
+        User love = userRepository.save(newUser("love", "러브"));
+        User admin = userRepository.save(newUser("admin", "관리자"));
+
+        Account ssarAccount1 = accountRepository.save(newAccount(1111L, ssar));
+        Account cosAccount = accountRepository.save(newAccount(2222L, cos));
+        Account loveAccount = accountRepository.save(newAccount(3333L, love));
+        Account ssarAccount2 = accountRepository.save(newAccount(4444L, ssar));
+
+        Transaction withdrawTransaction1 = transactionRepository
+                .save(newWithdrawTransaction(ssarAccount1, accountRepository));
+        Transaction depositTransaction1 = transactionRepository
+                .save(newDepositTransaction(cosAccount, accountRepository));
+        Transaction transferTransaction1 = transactionRepository
+                .save(newTransferTransaction(ssarAccount1, cosAccount, accountRepository));
+        Transaction transferTransaction2 = transactionRepository
+                .save(newTransferTransaction(ssarAccount1, loveAccount, accountRepository));
+        Transaction transferTransaction3 = transactionRepository
+                .save(newTransferTransaction(cosAccount, ssarAccount1, accountRepository));
     }
 }
