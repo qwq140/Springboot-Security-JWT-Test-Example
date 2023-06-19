@@ -61,4 +61,10 @@ public class AccountController {
         AccountTransferRespDto accountTransferRespDto = accountService.transfer(accountTransferReqDto, loginUser.getUser().getId());
         return new ResponseEntity<>(new ResponseDto<>(1, "계좌 이체 완료", accountTransferRespDto), HttpStatus.CREATED);
     }
+
+    @GetMapping("/s/account/{number}")
+    public ResponseEntity<?> findDetailAccount(@PathVariable Long number, @RequestParam(value = "page", defaultValue = "0") Integer page, @AuthenticationPrincipal LoginUser loginUser){
+        AccountDetailRespDto accountDetailRespDto = accountService.detailAccount(number, loginUser.getUser().getId(), page);
+        return new ResponseEntity<>(new ResponseDto<>(1, "계좌 상세보기 완료", accountDetailRespDto), HttpStatus.OK);
+    }
 }

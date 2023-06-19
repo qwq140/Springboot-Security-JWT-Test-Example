@@ -177,4 +177,19 @@ public class AccountService {
         // DTO 응답
         return new AccountTransferRespDto(withdrawAccountPS, transactionPS);
     }
+
+    public AccountDetailRespDto detailAccount(Long number, Long userId, Integer page){
+        // 1. 구분값 고정
+        String gubun = "ALL";
+
+        // 2. 계좌 찾기
+        Account accountPS = accountRepository.findByNumber(number).orElseThrow(() -> new CustomApiException("계좌를 찾을 수 없습니다"));
+
+        // 3. 계좌 소유자 확인
+        accountPS.checkOwner(userId);
+
+        // 4. 입출금목록보기
+        List<Transaction> transactionList = transactionRepository.findTransactionList(accountPS.getId(), gubun, page);
+        return new AccountDetailRespDto(accountPS, transactionList);
+    }
 }
