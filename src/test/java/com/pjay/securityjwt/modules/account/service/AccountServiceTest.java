@@ -167,13 +167,13 @@ public class AccountServiceTest extends DummyObject {
     public void depositTest2() throws Exception {
         // given
         Account account = newMockAccount(1L, 1111L, null, 1000L);
-        Long amount = 0L;
+        Long amount = 100L;
         // when
         if(amount <= 0L){
             throw new CustomApiException("0원 이하의 금액을 입력할 수 없습니다");
         }
 
-        account.deposit(100L);
+        account.deposit(amount);
 
         // then
         assertThat(account.getBalance()).isEqualTo(1100L);
